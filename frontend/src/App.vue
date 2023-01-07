@@ -1,32 +1,22 @@
 <template>
-  <div>
-    <div v-if="!authenticated">
-      <v-btn class="btn btn-primary btn-margin" @click="login()">
-        Log In
-      </v-btn>
-    </div>
-
-    <div v-else>
-      <v-btn class="btn btn-primary btn-margin" @click="privateMessage()">
-        Call Private
-      </v-btn>
-
-      <v-btn class="btn btn-primary btn-margin" @click="logout()">
-        Log Out
-      </v-btn>
-    </div>
-    {{ message.message }}
-    <br />
-  </div>
+  <Login v-if="!authenticated" @login="login()" />
+  <HomePage v-else @logout="logout()" />
 </template>
+
 <script>
 import AuthService from "./auth/AuthService";
 import axios from "axios";
+import Login from "./components/Login.vue";
+import HomePage from "./components/Homepage.vue";
 
 const API_URL = "http://localhost:8000";
 const auth = new AuthService();
 export default {
   name: "app",
+  components: {
+    Login,
+    HomePage,
+  },
   data() {
     this.handleAuthentication();
     this.authenticated = false;

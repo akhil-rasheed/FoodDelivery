@@ -1,7 +1,10 @@
 from django.db import models
 
 def upload_to(instance, filename):
-    return 'images/{filename}'.format(filename=filename)
+    return 'images/items/{filename}'.format(filename=filename)
+
+def upload_to_restaurant(instance, filename):
+    return 'images/restaurants/{filename}'.format(filename=filename)
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
@@ -9,6 +12,7 @@ class Item(models.Model):
     image = models.ImageField(upload_to=upload_to)
     price = models.DecimalField(max_digits=5, decimal_places=2)
     category = models.ManyToManyField('Category', related_name='item')
+    restaurant = models.ForeignKey('Restaurant', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -39,4 +43,15 @@ class Address(models.Model):
     zip_code = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
+        return self.street
+
+class Restaurant(models.Model):
+    name = models.CharField(max_length=100)
+    cuisine = models.CharField(max_length=50)
+    address = models.ForeignKey('Address', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to=upload_to)
+    rating  = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
         return self.name
+
