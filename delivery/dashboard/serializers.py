@@ -1,12 +1,12 @@
 from rest_framework import routers,serializers,viewsets
 from .models import Item, Restaurant
 
-class ItemSerializer(serializers.HyperlinkedModelSerializer):
+class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ['name', 'description', 'image', 'price']
+        fields = ['id','name', 'description', 'image', 'price', 'restaurant']
 
-class RestaurantSerializer(serializers.HyperlinkedModelSerializer):
+class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
-        fields = ['name', 'image', 'cuisine', 'rating']
+        fields = ['id','name', 'image', 'cuisine', 'rating']

@@ -1,0 +1,103 @@
+<template>
+  <div class="w-full min-h-screen flex flex-col">
+    <div class="mt-20 ml-40">
+      <h1 class="text-3xl font-bold text-red">Cart</h1>
+    </div>
+    <div class="flex flex-row">
+      <div class="ml-40">
+        <div v-for="iter in items" :key="iter.item.name">
+          <div
+            class="bg-white p-4 w-96 my-5 rounded-md shadow-xl flex flex-row items-center"
+          >
+            <div class="flex flex-col gap-2 items-start">
+              <img
+                class="w-20 h-20 rounded-full"
+                v-bind:src="iter.item.image"
+              />
+            </div>
+            <div class="flex flex-col w-60 ml-2">
+              <h2 class="text-sm font-bold">{{ iter.item.name }}</h2>
+
+              <span class="font-light text-green">₹{{ iter.item.price }}</span>
+              <p class="font-light text-black/50 text-sm">
+                {{ iter.item.description }}
+              </p>
+            </div>
+
+            <div class="mt-2 place-self-start">
+              <v-btn color="red" @click="addItem(iter.item)">Add</v-btn>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-row justify-center items-center w-full">
+        <div
+          class="bg-red h-80 w-80 rounded-xl items-center flex-col flex relative"
+        >
+          <h1
+            class="font-bold text-3xl bg-red py-2 px-3 text-white w-full text-center rounded-t-xl"
+          >
+            Order Summary
+          </h1>
+          <div
+            class="flex flex-col mt-4 text-md text-gray-100 bg-white rounded-xl py-4 px-14"
+          >
+            <div>
+              Subtotal:
+              <span class="float-right text-green ml-4">₹{{ totalPrice }}</span>
+            </div>
+            <div>
+              Delivery Charges:
+              <span class="float-right text-green ml-4">₹80</span>
+            </div>
+            <v-divider></v-divider>
+            <div class="text-xl text-black font-bold mt-12">
+              Total:
+              <span class="text-green float-right">₹{{ totalPrice + 80 }}</span>
+            </div>
+          </div>
+
+          <div class="absolute bottom-8">
+            <v-btn color="white" flat @click="continueToCheckout"
+              >Continue
+              <svg style="width: 18px; height: 18px" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"
+                />
+              </svg>
+            </v-btn>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import Cart from "./../global/cart.js";
+export default {
+  data() {
+    return {
+      items: [""],
+    };
+  },
+  created() {
+    const cart = Cart.getCart();
+    this.items = cart;
+    console.log(this.items);
+  },
+  computed: {
+    totalPrice() {
+      return this.items.reduce((total, iter) => {
+        return total + iter.quantity * iter.item.price;
+      }, 0);
+    },
+  },
+  methods: {
+    continueToCheckout() {
+      this.$router.push(`/checkout`);
+    },
+  },
+};
+</script>

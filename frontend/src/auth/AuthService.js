@@ -34,12 +34,25 @@ export default class AuthService {
   // this method calls the parseHash() method of Auth0
   // to get authentication information from the callback URL
   handleAuthentication() {
+    // users returning from Auth0 (after authentication) will have params on the hash
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
       } else if (err) {
         console.log(err);
         alert(`Error: ${err.error}. Check the console for further details.`);
+      } else {
+        // no authResult and no error? lets try silent auth
+        this.silentAuth()
+          .then(() => {
+            console.log("user logged in through silent auth");
+          })
+          .catch((err) => {
+            console.log(err);
+            alert(
+              `Error: ${err.error}. Check the console for further details.`
+            );
+          });
       }
       router.replace("/");
     });
@@ -81,5 +94,15 @@ export default class AuthService {
   // a method to get the User profile
   getUserProfile(cb) {
     return this.profile;
+  }
+
+  silentAuth() {
+    return new Promise((resolve, reject) => {
+      this.auth0.checkSession({}, (err, authResult) => {
+        if (err) return reject(err);
+        this.setSession(authResult);
+        resolve();
+      });
+    });
   }
 }

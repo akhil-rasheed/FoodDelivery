@@ -1,6 +1,7 @@
 <template>
   <Login v-if="!authenticated" @login="login()" />
-  <HomePage v-else @logout="logout()" />
+  <!-- <HomePage v-else @logout="logout()" /> -->
+  <div v-else><Navbar @logout="logout()" /> <router-view></router-view></div>
 </template>
 
 <script>
@@ -8,6 +9,7 @@ import AuthService from "./auth/AuthService";
 import axios from "axios";
 import Login from "./components/Login.vue";
 import HomePage from "./components/Homepage.vue";
+import Navbar from "./components/layout/Navbar.vue";
 
 const API_URL = "http://localhost:8000";
 const auth = new AuthService();
@@ -16,6 +18,7 @@ export default {
   components: {
     Login,
     HomePage,
+    Navbar,
   },
   data() {
     this.handleAuthentication();

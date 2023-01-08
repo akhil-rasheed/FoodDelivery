@@ -62,7 +62,7 @@ def items(request):
         # get all the items
         items = Item.objects.all()
         # serialize the item data
-        serializer = ItemSerializer(items, many=True)
+        serializer = ItemSerializer(items, context={'request': request}, many=True)
         # return a Json response
         return JsonResponse(serializer.data,safe=False)
     elif(request.method == 'POST'):
@@ -104,6 +104,10 @@ def item_detail(request, pk):
         item.delete() 
         # return a no content response.
         return HttpResponse(status=204) 
+    elif(request.method == 'GET'):
+        serializer = ItemSerializer(item)
+        # return a Json response
+        return JsonResponse(serializer.data,safe=False) 
 
 def restaurants(request):
     '''
@@ -154,7 +158,11 @@ def restaurant_detail(request, pk):
         # delete the restaurant
         restaurant.delete() 
         # return a no content response.
-        return HttpResponse(status=204) 
+        return HttpResponse(status=204)
+    elif(request.method == 'GET'):
+        serializer = RestaurantSerializer(restaurant)
+        # return a Json response
+        return JsonResponse(serializer.data,safe=False) 
 
 
 
