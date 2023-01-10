@@ -17,25 +17,22 @@
       <h1 class="text-3xl font-bold text-red">Items</h1>
       <div v-for="item in items" :key="item.name">
         <div
-          class="bg-white p-4 w-80 my-5 rounded-md shadow-xl flex flex-row items-center"
+          class="bg-white p-4 w-1/2 my-5 rounded-md shadow-xl flex flex-row items-center"
         >
-          <div class="flex flex-col gap-2 items-start">
-            <img
-              class="w-16 rounded-full"
-              v-bind:src="'http://127.0.0.1:8000' + item.image"
-            />
-
-            <h2 class="text-sm font-bold">{{ item.name }}</h2>
+          <div class="flex w-32 flex-col gap-2 items-start">
+            <img class="w-20 h-20 rounded-full" v-bind:src="item.image" />
           </div>
-          <div class="flex flex-col">
-            <span class="font-light text-green">₹{{ item.price }}</span>
-            <p class="font-light text-black/50 text-sm mt-2">
+          <div class="flex flex-col w-full ml-2">
+            <h2 class="text-sm font-bold">{{ item.name }}</h2>
+
+            <span class="font-light text-red">₹{{ item.price }}</span>
+            <p class="font-light text-black/50 text-sm">
               {{ item.description }}
             </p>
           </div>
 
-          <div class="mt-2 place-self-start">
-            <v-btn color="black" @click="addItem(item)">Add</v-btn>
+          <div class="mt-2 place-self-start float-right">
+            <v-btn large color="red" @click="addItem(item.item)">Add</v-btn>
           </div>
         </div>
       </div>

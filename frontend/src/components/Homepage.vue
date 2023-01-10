@@ -71,7 +71,7 @@
 
 <script>
 import axios from "axios";
-import Navbar from "./layout/Navbar.vue";
+import AuthService from "./../auth/AuthService.js";
 
 export default {
   data() {

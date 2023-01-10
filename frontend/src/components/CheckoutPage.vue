@@ -3,70 +3,65 @@
     <div class="mt-20 ml-40">
       <h1 class="text-3xl font-bold text-red">Add Delivery Address</h1>
     </div>
-    <div class="flex flex-row">
-      <div class="ml-40">
-        <div v-for="iter in items" :key="iter.item.name">
-          <div
-            class="bg-white p-4 w-96 my-5 rounded-md shadow-xl flex flex-row items-center"
-          >
-            <div class="flex flex-col gap-2 items-start">
-              <img
-                class="w-20 h-20 rounded-full"
-                v-bind:src="iter.item.image"
-              />
-            </div>
-            <div class="flex flex-col w-60 ml-2">
-              <h2 class="text-sm font-bold">{{ iter.item.name }}</h2>
-
-              <span class="font-light text-green">₹{{ iter.item.price }}</span>
-              <p class="font-light text-black/50 text-sm">
-                {{ iter.item.description }}
-              </p>
-            </div>
-
-            <div class="mt-2 place-self-start">
-              <v-btn color="red" @click="addItem(iter.item)">Add</v-btn>
-            </div>
-          </div>
-        </div>
+    <div class="flex flex-row justify-center items-center">
+      <div class="flex flex-col w-2/3 m-12 mx-40">
+        <v-text-field
+          v-model.number="order.address.houseNo"
+          label="House Number"
+        ></v-text-field>
+        <v-text-field
+          v-model="order.address.street"
+          label="Street"
+        ></v-text-field>
+        <v-text-field
+          v-model="order.address.landmark"
+          label="Landmark"
+        ></v-text-field>
+        <v-text-field
+          v-model="order.address.locality"
+          label="Locality"
+        ></v-text-field>
+        <v-text-field
+          v-model.number="order.address.pincode"
+          label="Pincode"
+        ></v-text-field>
       </div>
-      <div class="flex flex-row justify-center items-center w-full">
+      <div class="flex flex-row items-center justify-center w-full">
         <div
-          class="bg-red h-80 w-80 rounded-xl items-center flex-col flex relative"
+          class="bg-red-700/70 shadow-2xl h-96 w-96 rounded-xl items-center flex-col flex relative"
         >
           <h1
-            class="font-bold text-3xl bg-red py-2 px-3 text-white w-full text-center rounded-t-xl"
+            class="font-bold text-3xl py-2 px-3 text-white w-full text-center rounded-t-xl mt-2"
           >
             Order Summary
           </h1>
           <div
-            class="flex flex-col mt-4 text-md text-gray-100 bg-white rounded-xl py-4 px-14"
+            class="flex flex-col mt-4 text-lg text-gray-100 bg-white/25 font-semibold rounded-xl py-12 px-14"
           >
             <div>
               Subtotal:
-              <span class="float-right text-green ml-4">₹{{ totalPrice }}</span>
+              <span class="float-right text-green-400 font-thin ml-4"
+                >₹{{ totalPrice }}</span
+              >
             </div>
             <div>
               Delivery Charges:
-              <span class="float-right text-green ml-4">₹80</span>
+              <span class="float-right text-green-400 font-thin ml-4">₹80</span>
             </div>
-            <v-divider></v-divider>
-            <div class="text-xl text-black font-bold mt-12">
+            <div class="text-xl text-white font-bold mt-12">
+              <v-divider></v-divider>
+
               Total:
-              <span class="text-green float-right">₹{{ totalPrice + 80 }}</span>
+              <span class="text-green-400 float-right"
+                >₹{{ totalPrice + 80 }}</span
+              >
             </div>
           </div>
 
-          <div class="absolute bottom-8">
-            <v-btn color="black" flat
-              >Pay Now
-              <svg style="width: 18px; height: 18px" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"
-                />
-              </svg>
-            </v-btn>
+          <div
+            class="absolute bottom-6 w-full justify-center items-center flex"
+          >
+            <v-btn color="white" variant="flat" @click="payNow">Pay Now </v-btn>
           </div>
         </div>
       </div>
@@ -75,33 +70,71 @@
 </template>
 
 <script>
+import axios from "axios";
 import Cart from "./../global/cart.js";
+
+const APP_ID = "29201469c851556619451b35f5410292";
+const secret_key = "a55c7a6facea3ef186433d971e1754104d7ae474";
 export default {
   data() {
     return {
       order: {
         items: [],
-        totalPrice: totalPrice(),
+        totalPrice: 0,
         address: {
           houseNo: null,
           street: "",
           landmark: "",
           locality: "",
-          pincode: "",
+          pincode: null,
         },
       },
+      paymentSessionId: "",
+      responseItem: {},
+      user: {},
+    };
+  },
+  mounted() {
+    let cashfree = document.createElement("script");
+    cashfree.setAttribute(
+      "src",
+      "https://sdk.cashfree.com/js/ui/2.0.0/cashfree.sandbox.js"
+    );
+    cashfree.onload = () => {
+      document.head.appendChild(cashfree);
     };
   },
   created() {
     const cart = Cart.getCart();
     this.order.items = cart;
-    console.log(this.items);
+    this.user = this.$auth0.user;
+    console.log(this.user);
   },
   computed: {
     totalPrice() {
-      return this.items.reduce((total, iter) => {
+      return this.order.items.reduce((total, iter) => {
         return total + iter.quantity * iter.item.price;
       }, 0);
+    },
+  },
+  methods: {
+    async payNow() {
+      const email = await this.$auth0.user.email;
+      const orderItem = {
+        items: this.order.items.map((item) => item.item.id),
+        ...this.order.address,
+        price: this.totalPrice + 80,
+        user: this.user.email,
+        nickname: this.user.nickname,
+      };
+      axios
+        .post("http://localhost:8000/api/orders/", orderItem)
+        .then((response) => {
+          // call cashfree api
+          this.paymentSessionId = response.data.payment_session_id;
+          const cashfree = new window.Cashfree(this.paymentSessionId);
+          cashfree.redirect();
+        });
     },
   },
 };

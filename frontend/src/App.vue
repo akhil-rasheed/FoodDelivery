@@ -1,7 +1,10 @@
 <template>
-  <Login v-if="!authenticated" @login="login()" />
+  <Login v-if="!isAuthenticated" @login="login()" />
   <!-- <HomePage v-else @logout="logout()" /> -->
-  <div v-else><Navbar @logout="logout()" /> <router-view></router-view></div>
+  <div v-else-if="user">
+    <Navbar @logout="logout()" />
+    <router-view></router-view>
+  </div>
 </template>
 
 <script>
@@ -10,9 +13,9 @@ import axios from "axios";
 import Login from "./components/Login.vue";
 import HomePage from "./components/Homepage.vue";
 import Navbar from "./components/layout/Navbar.vue";
-
+import { useAuth0 } from "@auth0/auth0-vue";
 const API_URL = "http://localhost:8000";
-const auth = new AuthService();
+
 export default {
   name: "app",
   components: {
@@ -20,55 +23,23 @@ export default {
     HomePage,
     Navbar,
   },
-  data() {
-    this.handleAuthentication();
-    this.authenticated = false;
-
-    auth.authNotifier.on("authChange", (authState) => {
-      this.authenticated = authState.authenticated;
-    });
-
+  setup() {
+    const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
     return {
-      authenticated: false,
-      message: "",
+      user,
+      isAuthenticated,
+      getAccessTokenSilently,
     };
   },
+
+  created() {},
   methods: {
-    // this method calls the AuthService login() method
     login() {
-      auth.login();
-    },
-    handleAuthentication() {
-      auth.handleAuthentication();
+      this.$auth0.loginWithRedirect();
     },
     logout() {
-      auth.logout();
-    },
-    privateMessage() {
-      const url = `${API_URL}/api/private/`;
-      return axios
-        .get(url, {
-          headers: { Authorization: `Bearer ${auth.getAuthToken()}` },
-        })
-        .then((response) => {
-          console.log(response.data);
-          this.message = response.data || "";
-        });
+      this.$auth0.logout({ returnTo: window.location.origin });
     },
   },
 };
 </script>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>

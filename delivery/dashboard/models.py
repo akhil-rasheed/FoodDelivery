@@ -26,12 +26,18 @@ class Category(models.Model):
 
 
 class Order(models.Model):
+    user = models.EmailField(max_length=254)
     created_on = models.DateTimeField(auto_now_add=True)
     price = models.DecimalField(max_digits=7, decimal_places=2)
     items = models.ManyToManyField(
         'Item', related_name='order', blank=True)
-    is_paid = models.BooleanField(default=False)
-    is_shipped = models.BooleanField(default=False)
+    is_paid = models.BooleanField(default=False, blank=True)
+    houseNo = models.IntegerField(blank=True, )
+    street = models.CharField(max_length=50, blank=True)
+    landmark = models.CharField(max_length=50, blank=True)
+    locality = models.CharField(max_length=50, blank=True)
+    pincode = models.IntegerField( blank=True)
+
 
     def __str__(self):
         return f'Order: {self.created_on.strftime("%b %d %I: %M %p")}'
